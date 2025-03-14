@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Get your daily dose of motivation with inspiring quotes updated daily.">
+  <meta name="keywords" content="motivation, daily quotes, inspirational quotes, motivational quotes, daily inspiration">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="MotivateMe Daily - Your Daily Dose of Inspiration">
+  <meta property="og:description" content="Get your daily dose of motivation with inspiring quotes updated daily.">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="MotivateMe Daily - Your Daily Dose of Inspiration">
+  <meta property="twitter:description" content="Get your daily dose of motivation with inspiring quotes updated daily.">
+  
+  <title>MotivateMe Daily - Your Daily Dose of Inspiration</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body, html {
+      height: 100%;
+      font-family: 'Montserrat', sans-serif;
+      overflow: hidden;
+    }
+    
+    .app {
+      position: relative;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      transition: background 1s ease;
+    }
+    
+    .loading {
+      color: #fff;
+      font-size: 1.5rem;
+      text-align: center;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+      z-index: 10;
+    }
+    
+    .quote-container {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100%;
+      padding: 2rem;
+      text-align: center;
+      color: #fff;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+    
+    .date {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+    
+    .quote-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .quote {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    
+    .author {
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 2rem;
+    }
+    
+    .url {
+      font-size: 0.9rem;
+      opacity: 0.7;
+      margin-bottom: 2rem;
+    }
+    
+    .buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(5px);
+      color: white;
+    }
+    
+    button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    .error-message {
+      font-size: 1.2rem;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+    
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .quote {
+        font-size: 1.8rem;
+      }
+      
+      .author {
+        font-size: 1.2rem;
+      }
+      
+      .date {
+        font-size: 0.9rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .quote {
+        font-size: 1.5rem;
+      }
+      
+      .author {
+        font-size: 1rem;
+      }
+      
+      .date {
+        font-size: 0.8rem;
+      }
+      
+      .buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="background" id="background"></div>
+    <div id="quote-container" class="quote-container">
+      <div class="date" id="current-date"></div>
+      <div class="quote-content">
+        <h1 class="quote" id="quote-text"></h1>
+        <p class="author" id="quote-author"></p>
+      </div>
+      <div class="url">www.motivatemedaily.com</div>
+      <div class="buttons">
+        <button onclick="handleDownload()" class="download-btn">Download</button>
+        <button onclick="handleShare()" class="share-btn">Share</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- html2canvas lib for screenshot functionality -->
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  
+  <script>
+    // List of motivational quotes
+    const quotes = [
+      { quote: "The best way to predict the future is to create it.", author: "Peter Drucker" },
+      { quote: "Arise, awake, and stop not till the goal is reached.", author: "Swami Vivekananda" },
+      { quote: "You must be the change you wish to see in the world.", author: "Mahatma Gandhi" },
+      { quote: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+      { quote: "Success is not final, failure is not fatal: It is the courage to continue that counts.", author: "Winston Churchill" },
+      { quote: "The journey of a thousand miles begins with one step.", author: "Lao Tzu" },
+      { quote: "What you seek is seeking you.", author: "Rumi" },
+      { quote: "Don't count the days, make the days count.", author: "Muhammad Ali" },
+      { quote: "If you want to lift yourself up, lift up someone else.", author: "Booker T. Washington" },
+      { quote: "If you can dream it, you can do it.", author: "Walt Disney" },
+      { quote: "Yesterday is not ours to recover, but tomorrow is ours to win or lose.", author: "Lyndon B. Johnson" },
+      { quote: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+      { quote: "Life is 10% what happens to us and 90% how we react to it.", author: "Charles R. Swindoll" },
+      { quote: "Do what you can, with what you have, where you are.", author: "Theodore Roosevelt" },
+      { quote: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+      { quote: "Keep your face always toward the sunshine - and shadows will fall behind you.", author: "Walt Whitman" },
+      { quote: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+      { quote: "Happiness is not something ready-made. It comes from your own actions.", author: "Dalai Lama" },
+      { quote: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
+      { quote: "Nothing is impossible, the word itself says 'I'm possible'!", author: "Audrey Hepburn" }
+    ];
+    
+    // List of background styles
+    const backgrounds = [
+      'linear-gradient(45deg, #FF6F61, #FFD166)',
+      'linear-gradient(45deg, #6B7280, #D1D5DB)',
+      'linear-gradient(45deg, #4158D0, #C850C0)',
+      'linear-gradient(45deg, #0093E9, #80D0C7)',
+      'linear-gradient(45deg, #8EC5FC, #E0C3FC)',
+      'linear-gradient(45deg, #85FFBD, #FFFB7D)',
+      'linear-gradient(45deg, #FF9A8B, #FF6A88)',
+      'linear-gradient(45deg, #74EBD5, #9FACE6)',
+      'linear-gradient(45deg, #1CB5E0, #000851)',
+      'linear-gradient(45deg, #FDC830, #F37335)'
+    ];
+    
+    // Get today's date in a nice format
+    function getTodayDate() {
+      return new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    }
+    
+    // Get a seed based on the current date (to keep the quote consistent for the whole day)
+    function getDateSeed() {
+      const now = new Date();
+      return now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+    }
+    
+    // Simple pseudo-random number generator with seed
+    function seededRandom(seed) {
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    }
+    
+    // Get a random item using the date seed
+    function getRandomItemForToday(array, seed) {
+      const index = Math.floor(seededRandom(seed) * array.length);
+      return array[index];
+    }
+    
+    // Download functionality
+    function handleDownload() {
+      const quoteElement = document.getElementById('quote-container');
+      
+      html2canvas(quoteElement, {
+        allowTaint: true,
+        useCORS: true,
+        scale: 2
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `motivational-quote-${new Date().toLocaleDateString().replace(/\//g, '-')}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+    
+    // Share functionality
+    function handleShare() {
+      const quoteText = document.getElementById('quote-text').innerText;
+      const quoteAuthor = document.getElementById('quote-author').innerText.substring(2); // Remove the "- " prefix
+      const text = `${quoteText} ${quoteAuthor} via www.motivatemedaily.com`;
+      
+      if (navigator.share) {
+        navigator.share({
+          title: 'Daily Motivational Quote',
+          text: text,
+          url: window.location.href
+        }).catch(err => {
+          // Fallback for share failure
+          window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`);
+        });
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`);
+      }
+    }
+    
+    // Initialize the app
+    function initApp() {
+      const dateSeed = getDateSeed();
+      
+      // Set the date
+      document.getElementById('current-date').innerText = getTodayDate();
+      
+      // Get today's quote
+      const todayQuote = getRandomItemForToday(quotes, dateSeed);
+      document.getElementById('quote-text').innerText = `"${todayQuote.quote}"`;
+      document.getElementById('quote-author').innerText = `- ${todayQuote.author}`;
+      
+      // Set today's background
+      const todayBackground = getRandomItemForToday(backgrounds, dateSeed + 1); // Using a different seed for variation
+      document.getElementById('background').style.background = todayBackground;
+      
+      // Update meta description with today's quote
+      const metaDescription = document.querySelector('meta[name="description"]');
+      metaDescription.setAttribute('content', `Today's Motivation: "${todayQuote.quote}" - ${todayQuote.author}. Get your daily dose of inspiration!`);
+    }
+    
+    // Run the app
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
